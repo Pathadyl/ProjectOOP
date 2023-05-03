@@ -36,6 +36,8 @@ class Admin : public RegisterUser {
 
         int getHideBookIndex(Book* b);
 
+        Book* getHideBookBySerial(string);
+
         vector<Book*> getHideBookList() const
             {return hideBookList;}
 

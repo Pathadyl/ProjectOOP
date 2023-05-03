@@ -24,6 +24,11 @@ Member::~Member(){
         delete b;
     }
     borrowList.clear();
+
+    for(Collection* c : subscribedCollections){
+        delete c;
+    }
+    subscribedCollections.clear();
 }
 
 void Member::borrowBook(string serial){

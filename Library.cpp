@@ -12,13 +12,24 @@ Library::~Library(){
     for (Member* member : memberList) {
         delete member;
     }
+    memberList.clear();
 
     for(Admin* admin : adminList) {
         delete admin;
     }
+    adminList.clear();
+
+    for(Book* book : publicBookList) {
+        delete book;
+    }
+    publicBookList.clear();
+
+    for(Collection* collection : collectionList) {
+        delete collection;
+    }
+    collectionList.clear();
 
     delete instance;
-    instance = nullptr;
 }
 
 Library& Library::getInstance(){
@@ -135,6 +146,7 @@ Collection * Library::getCollectionById(int id){
     }
     return nullptr;
 }
+
 
 void Library::showCollectionList(){
     for(int i = 0; i < collectionList.size(); i++){

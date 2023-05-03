@@ -36,6 +36,13 @@ void Admin::addBook(Book* b){
 
 void Admin::removeBook(Book* b){
     Library::getInstance().removePublicBook(b, this);
+    for(Collection* c : Library::getInstance().getCollectionList()){
+        for(int i = 0; i < c->getBooks().size(); i++){
+            if(c->getBooks()[i] == b){
+                c->removeBook(c->getBooks()[i]);
+            }
+        }
+    }
 }
 
 void Admin::showBook(Book* b){
@@ -91,5 +98,12 @@ int Admin::getHideBookIndex(Book * b){
     return -1;
 }
 
-
-
+Book *Admin::getHideBookBySerial(string serial){
+    for(Book* b : hideBookList){
+        if(b->getSerial() == serial){
+            return b;
+            break;
+        }
+    }
+    return nullptr;
+}

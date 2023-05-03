@@ -519,7 +519,7 @@ int main(){
 
             cin.ignore();
             cout << "Enter book serial you want to remove: "; bookSerial = getValidSerial();
-            if(library.getBookBySerial(bookSerial) == nullptr){
+            if(library.getBookBySerial(bookSerial) != nullptr){
                 currentAdmin->removeBook(library.getBookBySerial(bookSerial));
                 cout << "Remove book success!" << endl;
             } else {
@@ -537,8 +537,8 @@ int main(){
 
             cin.ignore();
             cout << "Enter book serial you want to show publicly: "; bookSerial = getValidSerial();
-            if(library.getBookBySerial(bookSerial) == nullptr){
-                currentAdmin->showBook(library.getBookBySerial(bookSerial));
+            if(currentAdmin->getHideBookBySerial(bookSerial) != nullptr){
+                currentAdmin->showBook(currentAdmin->getHideBookBySerial(bookSerial));
                 cout << "Show book success!" << endl;
             } else {
                 cout << "This book does not exist!" << endl;
@@ -555,7 +555,7 @@ int main(){
 
             cin.ignore();
             cout << "Enter book serial you want to hide: "; bookSerial = getValidSerial();
-            if(library.getBookBySerial(bookSerial) == nullptr){
+            if(library.getBookBySerial(bookSerial) != nullptr){
                 currentAdmin->hideBook(library.getBookBySerial(bookSerial));
                 cout << "Hide book success!" << endl;
             } else {
@@ -668,6 +668,11 @@ int main(){
 //Deallocate memory
     delete currentMember;
     delete currentAdmin;
+    delete c;
+    delete b1, b2, b3;
+    delete m;
+    delete a;
 
+    
     return 0;
 }
