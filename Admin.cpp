@@ -59,6 +59,8 @@ void Admin::editBook(string serial, int numPage, int freePage){
     if(Library::getInstance().getBookBySerial(serial)){
         Library::getInstance().getBookBySerial(serial)->setNumPage(numPage);
         Library::getInstance().getBookBySerial(serial)->setFreePage(freePage);
+    } else {
+        cout << "Book not found!" << endl;
     }
 }
 

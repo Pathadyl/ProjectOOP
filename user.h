@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 using namespace std;
 
 #ifndef USER_H
@@ -25,6 +26,10 @@ class User{
 
         int getAccessibility() const
             {return access;}
+
+        int getPublicBookIndexBySerial(string);
+
+        vector<int> getPublicBookIndexByTitle(string); 
 
 };
 

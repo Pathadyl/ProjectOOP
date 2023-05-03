@@ -110,6 +110,7 @@ int Library::getCollectionIndex(Collection *c){
     for(int i = 0; i < collectionList.size(); i++){
         if(collectionList[i] == c){
             return i;
+            break;
         }
     }
     return -1;

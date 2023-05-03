@@ -18,6 +18,30 @@ enum ACTIONTYPE {GUEST_READ, GUEST_SEARCH_TITLE, GUEST_SEARCH_SERIAL, REGISTER, 
                  MEMBER_READ, MEMBER_SEARCH_TITLE, MEMBER_SEARCH_SERIAL, BORROW_LIST, BORROW_BOOK, RETURN_BOOK,
                  SHOW_COLLECTION, SHOW_BOOK_LIST_COLLECTION, SUBSCRIBE_COLLECTION, UNSUBSCRIBE_COLLECTION};
 
+bool isValidSerial(const string& serial) {
+    if (serial.size() != 6) {
+        return false;
+    }
+    for (char c : serial) {
+        if (!isdigit(c)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+string getValidSerial() {
+    string serial;
+    do {
+        cin >> serial;
+        if(!isValidSerial(serial)){
+            cout << "Invalid serial, please try again: ";
+        } 
+    } while (!isValidSerial(serial));
+
+    return serial;
+}
+
 int main(){
 
     Library& library = Library::getInstance();
@@ -186,7 +210,7 @@ int main(){
         {
             currentMenu->displayMenu();
             string bookSerial; cin.ignore();
-            cout << "Enter book serial: "; getline(cin, bookSerial);
+            cout << "Enter book serial: "; bookSerial = getValidSerial();
             g.searchBySerial(bookSerial);
             system("pause");
             currentMenu = currentMenu->getParentMenu();
@@ -278,8 +302,12 @@ int main(){
             currentMenu->displayMenu();
             string bookSerial; cin.ignore();
 
-            cout << "Enter book serial you want to read: "; getline(cin, bookSerial);
-            currentMember->read(library.getBookBySerial(bookSerial));
+            cout << "Enter book serial you want to read: "; bookSerial = getValidSerial();
+            if(library.getBookBySerial(bookSerial) != nullptr){
+                currentMember->read(library.getBookBySerial(bookSerial));
+            } else {
+                cout << "The book does not exist!" << endl;
+            }
             system("pause");
             currentMenu = currentMenu->getParentMenu();
         }
@@ -300,7 +328,7 @@ int main(){
         {
             currentMenu->displayMenu();
             string bookSerial; cin.ignore();
-            cout << "Enter book title: "; getline(cin, bookSerial);
+            cout << "Enter book serial: "; bookSerial = getValidSerial();
             currentMember->searchBySerial(bookSerial);
             system("pause");
             currentMenu = currentMenu->getParentMenu();
@@ -315,21 +343,21 @@ int main(){
             break;
 
         case SHOW_BOOK_LIST_COLLECTION:
-        {    currentMenu->displayMenu();
+        {   
+            currentMenu->displayMenu();
             int collectionID;
 
             cout << "Enter collection ID you want to see its list of books: "; cin >> collectionID;
-            for(int i = 0; i < currentMember->getSubscribedCollections().size(); i++){
-                if(currentMember->getSubscribedCollections()[i] == library.getCollectionById(collectionID)){
-                    currentMember->showBookListSubscribed(library.getCollectionById(collectionID));
-                    system("pause");
-                    break;
-                } else {
-                    cout << "You are not subscribed this collection!" << endl;
-                    system("pause");
+            int index = currentMember->getSubscribeCollectionIndexById(collectionID);
+            if(index != -1){
+                for(Book* b : currentMember->getSubscribedCollections()[index]->getBooks()){
+                    b->printInfo();
                 }
+            } else {
+                cout << "You are not subscribed this collection!" << endl;
             }
-            currentMenu = currentMenu->getParentMenu();
+                system("pause");
+                currentMenu = currentMenu->getParentMenu();
         }
             break;
 
@@ -337,9 +365,8 @@ int main(){
         {
             currentMenu->displayMenu();
             string bookSerial; cin.ignore();
-            cout << "Enter book serial you want to borrow: "; getline(cin, bookSerial); //Need condition
+            cout << "Enter book serial you want to borrow: "; bookSerial = getValidSerial();
             currentMember->borrowBook(bookSerial);
-            cout << "Borrow book success!" << endl;
             system("pause");
             currentMenu = currentMenu->getParentMenu();
 
@@ -350,9 +377,8 @@ int main(){
         {
             currentMenu->displayMenu();
             string bookSerial; cin.ignore();
-            cout << "Enter book serial you want to return: "; getline(cin, bookSerial); //Need condition
+            cout << "Enter book serial you want to return: "; bookSerial = getValidSerial();
             currentMember->returnBook(bookSerial);
-            cout << "Return book success!" << endl;
             system("pause");
             currentMenu = currentMenu->getParentMenu();
         }
@@ -370,28 +396,38 @@ int main(){
             int collectionID;
 
             cout << "Enter collection ID you want to subscribe: "; cin >> collectionID;
-            currentMember->subscribe(library.getCollectionById(collectionID));
-            cout << "Subscribe collection success!" << endl;
+            
+            if(library.getCollectionById(collectionID) != nullptr){
+                currentMember->subscribe(library.getCollectionById(collectionID));
+                cout << "Subscribe collection success!" << endl;
+            } else {
+                cout << "This collection does not exist!" << endl;
+            }
             system("pause");
             currentMenu = currentMenu->getParentMenu();
         }
             break;
 
         case UNSUBSCRIBE_COLLECTION:
-        {    currentMenu->displayMenu();
+        {   
+            currentMenu->displayMenu();
             int collectionID;
 
             cout << "Enter collection ID you want to unsubscribe: "; cin >> collectionID;
-            for(int i = 0; i < currentMember->getSubscribedCollections().size(); i++){
-                if(currentMember->getSubscribedCollections()[i] == library.getCollectionById(collectionID)){
+
+            int index = currentMember->getSubscribeCollectionIndexById(collectionID);
+            if(index != -1){
+                if(currentMember->getSubscribedCollections()[index] == library.getCollectionById(collectionID)){
                     currentMember->unSubscribe(library.getCollectionById(collectionID));
-                    cout << "Subscribe collection success!" << endl;
-                    break;
+                    cout << "Unscribed collection success!" << endl;
                     system("pause");
                 } else {
-                    cout << "You are not subscribed this collection!" << endl;
+                    cout << "Error!" << endl;
                     system("pause");
                 }
+            } else {
+                cout << "You have not subscribed this collection!" << endl;
+                system("pause");
             }
             currentMenu = currentMenu->getParentMenu();
         }
@@ -404,8 +440,12 @@ int main(){
             currentMenu->displayMenu();
             string bookSerial; cin.ignore();
 
-            cout << "Enter book serial you want to read: "; getline(cin, bookSerial);
-            currentAdmin->read(library.getBookBySerial(bookSerial));
+            cout << "Enter book serial you want to read: "; bookSerial = getValidSerial();
+            if(library.getBookBySerial(bookSerial) != nullptr){
+                currentAdmin->read(library.getBookBySerial(bookSerial));
+            } else {
+                cout << "The book does not exist!" << endl;
+            }
             system("pause");
             currentMenu = currentMenu->getParentMenu();
         }
@@ -426,7 +466,7 @@ int main(){
         {
             currentMenu->displayMenu();
             string bookSerial; cin.ignore();
-            cout << "Enter book title: "; getline(cin, bookSerial);
+            cout << "Enter book title: "; bookSerial = getValidSerial();
             currentAdmin->searchBySerial(bookSerial);
             system("pause");
             currentMenu = currentMenu->getParentMenu();
@@ -459,7 +499,7 @@ int main(){
 
             cin.ignore();
             cout << "Enter book title: "; getline(cin, bookTitle);
-            cout << "Enter book serial: "; getline(cin, bookSerial); // check condition
+            cout << "Enter book serial: "; bookSerial = getValidSerial();
             cout << "Enter book author: "; getline(cin, bookAuthor);
             cout << "Enter book category: "; getline(cin, bookCategory);
             cout << "Enter number of book page: "; cin >> numBookPage;
@@ -478,9 +518,13 @@ int main(){
             string bookSerial;
 
             cin.ignore();
-            cout << "Enter book serial you want to remove: "; getline(cin, bookSerial); // check condition
-            currentAdmin->removeBook(library.getBookBySerial(bookSerial));
-            cout << "Remove book success!" << endl;
+            cout << "Enter book serial you want to remove: "; bookSerial = getValidSerial();
+            if(library.getBookBySerial(bookSerial) == nullptr){
+                currentAdmin->removeBook(library.getBookBySerial(bookSerial));
+                cout << "Remove book success!" << endl;
+            } else {
+                cout << "This book does not exist!" << endl;
+            }
             system("pause");
             currentMenu = currentMenu->getParentMenu();
         }
@@ -492,9 +536,13 @@ int main(){
             string bookSerial;
 
             cin.ignore();
-            cout << "Enter book serial you want to show publicly: "; getline(cin, bookSerial); // check condition
-            currentAdmin->showBook(library.getBookBySerial(bookSerial));
-            cout << "Show book success!" << endl;
+            cout << "Enter book serial you want to show publicly: "; bookSerial = getValidSerial();
+            if(library.getBookBySerial(bookSerial) == nullptr){
+                currentAdmin->showBook(library.getBookBySerial(bookSerial));
+                cout << "Show book success!" << endl;
+            } else {
+                cout << "This book does not exist!" << endl;
+            }
             system("pause");
             currentMenu = currentMenu->getParentMenu();
         }
@@ -506,9 +554,13 @@ int main(){
             string bookSerial;
 
             cin.ignore();
-            cout << "Enter book serial you want to hide: "; getline(cin, bookSerial); // check condition
-            currentAdmin->hideBook(library.getBookBySerial(bookSerial));
-            cout << "Hide book success!" << endl;
+            cout << "Enter book serial you want to hide: "; bookSerial = getValidSerial();
+            if(library.getBookBySerial(bookSerial) == nullptr){
+                currentAdmin->hideBook(library.getBookBySerial(bookSerial));
+                cout << "Hide book success!" << endl;
+            } else {
+                cout << "This book does not exist!" << endl;
+            }
             system("pause");
             currentMenu = currentMenu->getParentMenu();
         }
@@ -521,11 +573,10 @@ int main(){
             int numBookPage, numFreePage;
 
             cin.ignore();
-            cout << "Enter book serial you want to edit: "; getline(cin, bookSerial);// check condition
+            cout << "Enter book serial you want to edit: "; bookSerial = getValidSerial();
             cout << "Enter number of book page: "; cin >> numBookPage;
             cout << "Enter number of free page: "; cin >> numFreePage;
             currentAdmin->editBook(bookSerial, numBookPage, numFreePage);
-            cout << "Edit book with serial " << bookSerial << " success!" << endl;
             system("pause");
             currentMenu = currentMenu->getParentMenu();
         }
@@ -538,7 +589,7 @@ int main(){
 
             cin.ignore();
             cout << "Enter collection name: "; getline(cin, collectionName);
-            cout << "Enter collection id: "; cin >> collectionId;
+            collectionId = library.getCollectionList().back()->getId() + 1;
             currentAdmin->createCollection(collectionName, collectionId);
             cout << "Create collection success!" << endl;
             system("pause");
@@ -551,9 +602,13 @@ int main(){
             currentMenu->displayMenu();
             int collectionId;
 
-            cout << "Enter collection id you want to delete: "; cin >> collectionId; // check condition
-            currentAdmin->deleteCollection(library.getCollectionById(collectionId));
-            cout << "Delete collection success!" << endl;
+            cout << "Enter collection id you want to delete: "; cin >> collectionId;
+            if(library.getCollectionById(collectionId) != nullptr){
+                currentAdmin->deleteCollection(library.getCollectionById(collectionId));
+                cout << "Delete collection success!" << endl;
+            } else {
+                cout << "This collection does not exist!" << endl;
+            }
             system("pause");
             currentMenu = currentMenu->getParentMenu();
             
@@ -567,10 +622,14 @@ int main(){
             string bookSerial;
 
             cout << "Enter collection id: "; cin >> collectionId;
-            cin.ignore();
-            cout << "Enter book serial: "; getline(cin, bookSerial); //Check condition
-            currentAdmin->addBookCollection(library.getBookBySerial(bookSerial), library.getCollectionById(collectionId));
-            cout << "Add book to collection success!" << endl;
+            if(library.getCollectionById(collectionId) != nullptr){
+                cin.ignore();
+                cout << "Enter book serial: "; bookSerial = getValidSerial();
+                currentAdmin->addBookCollection(library.getBookBySerial(bookSerial), library.getCollectionById(collectionId));
+                cout << "Add book to collection success!" << endl;
+            } else {
+                cout << "This collection does not exist!" << endl;
+            }
             system("pause");
             currentMenu = currentMenu->getParentMenu();
         }
@@ -583,10 +642,14 @@ int main(){
             string bookSerial;
 
             cout << "Enter collection id: "; cin >> collectionId;
-            cin.ignore();
-            cout << "Enter book serial: "; getline(cin, bookSerial);
-            currentAdmin->removeBookCollection(library.getBookBySerial(bookSerial), library.getCollectionById(collectionId));
-            cout << "Remove book from collection success!" << endl;
+            if(library.getCollectionById(collectionId) != nullptr){
+                cin.ignore();
+                cout << "Enter book serial: "; bookSerial = getValidSerial();
+                currentAdmin->removeBookCollection(library.getBookBySerial(bookSerial), library.getCollectionById(collectionId));
+                cout << "Remove book from collection success!" << endl;
+            } else {
+                cout << "This collection does not exist!" << endl;
+            }
             system("pause");
             currentMenu = currentMenu->getParentMenu();
         }

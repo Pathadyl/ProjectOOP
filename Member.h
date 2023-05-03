@@ -44,11 +44,9 @@ class Member : public RegisterUser{
 
         void showBookListSubscribed(Collection*);
 
-        // void read(Book*);
+        int getBorrowListIndexBySerial(string);
 
-
-
-
+        int getSubscribeCollectionIndexById(int);
 
 };
 
