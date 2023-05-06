@@ -154,8 +154,3 @@ void Library::showCollectionList(){
         collectionList[i]->showInfo();
     }
 }
-
-
-
-
-
